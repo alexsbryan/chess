@@ -1,22 +1,84 @@
 require_relative 'piece'
 
+
+# private ???
+
 class SlidingPiece < Piece
-  #Initialize a move vector Constant, for [Rooks, Queens, Bishops]
+  #Initialize a move possibilities Queens, Bishops, Rooks
 
-  def move
-    #slides to edges and only in certain directions
+  def possible_moves(move_units)
+    valid_moves = []
+    x, y = self.position
 
+    move_units.each do |(dx, dy)|
+      (1..7).each do |multiplier|
+        new_position = [x + (multiplier * dx), y + (multiplier * dy)]
+        if new_position[0].between?(0,7) && new_position[1].between?(0,7)
+          # not valid if new position is already occupied (ask self.board)
+          valid_moves << new_position
+        end
+      end
+    end
+
+    valid_moves
   end
 end
 
+
 class Rook < SlidingPiece
 
+  def initialize(color, pos, board=nil)
+    super(color,pos,board)
+    @move_units = [
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+      [1, 0]
+    ]
+  end
+
+  def possible_moves
+    super(@move_units)
+  end
 end
 
 class Queen < SlidingPiece
 
+  def initialize(color, pos, board=nil)
+    super(color,pos,board)
+    @move_units = [
+      [-1, 1],
+      [-1, -1],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+      [1, 1],
+      [1, 0],
+      [1, -1]
+    ]
+  end
+
+  def possible_moves
+    super(@move_units)
+  end
+
+
 end
 
 class Bishop < SlidingPiece
+
+  def initialize(color, pos, board=nil)
+    super(color,pos,board)
+    @move_units = [
+      [-1, 1],
+      [-1, -1],
+      [1, 1],
+      [1, -1]
+    ]
+  end
+
+  def possible_moves
+    super(@move_units)
+  end
 
 end
