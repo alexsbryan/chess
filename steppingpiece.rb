@@ -1,4 +1,4 @@
-require_relative 'piece'
+# require_relative 'piece'
 
 
 # private ???
@@ -47,7 +47,7 @@ end
 
 
 class Knight < SteppingPiece
-
+  #only Knight doesn't care what is in its way
   def initialize(color, pos, board=nil)
     super(color,pos,board)
     @move_units = [
