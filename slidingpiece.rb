@@ -14,9 +14,11 @@ class SlidingPiece < Piece
       (1..7).each do |multiplier|
         new_position = [x + (multiplier * dx), y + (multiplier * dy)]
         if new_position[0].between?(0,7) && new_position[1].between?(0,7)
-          valid_moves << new_position unless piece_in_way?(self.position, new_position) # ???
-          # definitely avoid your own color's pieces
-          # don't move past more than one opponent player
+          unless piece_in_way?(self.position, new_position) # || move_into_check?(new_position)
+            valid_moves << new_position
+            # definitely avoid your own color's pieces
+            # don't move past more than one opponent player
+          end
         end
       end
     end

@@ -18,6 +18,20 @@ class Piece
   def possible_moves
   end
 
+  def valid_moves(move_arr)
+
+    valid_moves = []
+
+    move_arr.each do |end_pos|
+
+      if !move_into_check?(end_pos)
+        valid_moves << end_pos
+      end
+
+    end
+    valid_moves
+  end
+
   # assume that all pieces need to take into account other pieces in the way (in its path)
   # calls possible moves and takes out moves that would run into someone
 
@@ -149,6 +163,25 @@ class Piece
     false
   end
 
+  def move_into_check?(pos)
+    dup_board = @board.dup
+    # dup_piece = Piece.new()
+    # p "**********"
+#     p dup_board
+#     p "**********"
+dup_piece_loc = @position
+
+    dup_board.board[pos[0]][pos[1]] = dup_board.board[@position[0]][@position[1]]
+    dup_board.board[@position[0]][@position[1]].position = [pos[0],pos[1]]
+    dup_board.board[@position[0]][@position[1]] = nil
+
+    # p "PPPPPPPPPP"
+ #    p [@position, pos]
+ #    p "PPPPPPPPPP"
+ #    p @color
+    dup_board.in_check?(@color)
+  end
+
 end
 
 
@@ -173,7 +206,7 @@ class Pawn < Piece
     @move_units.each do |(dx, dy)|
       new_position = [x + (direction * dx), y + (direction * dy)]
       if new_position[0].between?(0,7) && new_position[1].between?(0,7)
-        valid_moves << new_position #if piece_in_way?(self.position, new_position) # add to other pieces
+        valid_moves << new_position if piece_in_way?(self.position, new_position) # add to other pieces
       end
     end
 

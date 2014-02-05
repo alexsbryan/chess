@@ -14,7 +14,10 @@ class SteppingPiece < Piece
       new_position = [x + dx, y + dy]
       if new_position[0].between?(0,7) && new_position[1].between?(0,7)
         # not valid if new position is already occupied (ask self.board)
-        valid_moves << new_position
+        unless piece_in_way?(self.position, new_position) # || move_into_check?(new_position)
+          valid_moves << new_position
+        end
+        # valid_moves << new_position
       end
     end
 

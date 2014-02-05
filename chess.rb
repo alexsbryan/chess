@@ -6,7 +6,7 @@ require_relative 'steppingpiece'
 class Board
   attr_accessor :board
 
-  def initialize
+  def initialize # take an option to determine if we want to populate or not
     @board = create_empty_board
     # populate_board
   end
@@ -56,7 +56,7 @@ class Board
   end
 
   def print_board
-    #simple (really stinks)
+    # simple (really stinks)
     @board.each do |row|
       row.each do |piece|
         puts piece.class
@@ -77,14 +77,11 @@ class Board
     king_loc = find_king(color)
     opponent = color == :b ? :w : :b
 
-    puts opponent
-    p king_loc
-
     @board.each do |row|
       row.each do |piece|
         next if piece.nil?
         if piece.color == opponent
-          p piece.possible_moves # runs into king and stops looking
+          next if piece.possible_moves.nil?
           return true if piece.possible_moves.include?(king_loc)
         end
       end
@@ -105,25 +102,75 @@ class Board
   end
 
   def move(start_pos, end_pos)
-    # check if there's an opponent at the end
-    # make sure that piece has end as a possible move
     x, y = start_pos
     piece_to_move = @board[x][y]
 
-    # throw an exception/error if piece_to_move.nil?
-    # or if not a Piece
+    legal_moves = piece_to_move.possible_moves
 
-    if piece_to_move.possible_moves.include?(end_pos)
-      @board[x][y] = nil
-      dest_x, dest_y = end_pos
-      @board[dest_x][dest_y] = piece_to_move
-      piece_to_move.position = end_pos
-    else
-      #throw eception
+    if legal_moves.nil?
+      raise ArgumentError.new "No legal moves."
+    end
+
+    good_moves = piece_to_move.valid_moves(legal_moves)
+
+    if good_moves.nil?
+      raise ArgumentError.new "In check if there are no other errors......"
+    end
+
+    if good_moves.include?(end_pos)
+      move!(start_pos, end_pos)
     end
   end
 
+  def move!(start_pos, end_pos)
+    x, y = start_pos
+    piece_to_move = @board[x][y]
+    @board[x][y] = nil
+    dest_x, dest_y = end_pos
+    dest_contents = @board[dest_x][dest_y]
 
+    if dest_contents
+      dest_contents.board = nil
+    end
+
+    @board[dest_x][dest_y] = piece_to_move
+    piece_to_move.position = end_pos
+  end
+
+  def dup
+    dup_board = Board.new
+
+    @board.each_with_index do |row, row_idx |
+      row.each_with_index do |piece, col|
+        next if piece.nil?
+        dup_piece = (piece.class).new(piece.color, piece.position, dup_board)
+        dup_board.board[row_idx][col] = dup_piece
+
+      end
+    end
+
+    dup_board
+  end
+
+  def checkmate?(color)
+    good_moves = []
+
+    @board.each_with_index do |row, row_idx |
+      row.each_with_index do |piece, col|
+        next if piece.nil? || piece.color != color
+        legal_moves = piece.possible_moves
+
+        good_moves += piece.valid_moves(legal_moves)
+      end
+    end
+
+    if good_moves.empty?
+      return true
+    else
+      false
+    end
+
+  end
 end
 
 
@@ -157,16 +204,38 @@ end
 b = Board.new
 queen = Queen.new(:w, [0,0], b)
 king = King.new(:b, [7,7], b)
+bishop1 = Bishop.new(:b, [6,7], b)
+bishop2 = Bishop.new(:b, [7,6], b)
 
 b.board[0][0] = queen
 b.board[7][7] = king
+b.board[6][7] = bishop1
+# b.board[7][6] = bishop2
 
-puts b.in_check?(:b)
+# dup = b.dup
+
+# queen = Queen.new(:w, [0,0], b)
+# king = King.new(:b, [7,7], b)
+#
+# b.board[0][0] = queen
+# b.board[7][7] = king
+#
+# puts king.move_into_check?([7,6]) == false
+# puts king.move_into_check?([7,7]) == true
+#
+# b.move([6,5], [7,6])
 
 b.print_board
-# b.move([0,0], [7,7]) # queen moves on top of king
-b.move([7,7], [7,6])
-b.print_board
+
+# p bishop2.valid_moves(bishop2.possible_moves)
+p king.valid_moves(king.possible_moves)
+p b.checkmate?(:b)
+
+#p "I moved into check #{king.move_into_check?([7,7])}"
+
+#p "I didn't move into check #{king.move_into_check?([7,5])}"
+
+#b.print_board
 
 
 # queen = Queen.new(:w, [0,1], b)
