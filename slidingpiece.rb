@@ -1,11 +1,6 @@
-# require_relative 'piece'
-
-
-# private ???
-
+# encoding: utf-8
 class SlidingPiece < Piece
   #Initialize a move possibilities Queens, Bishops, Rooks
-
   def possible_moves(move_units)
     valid_moves = []
     x, y = self.position
@@ -14,10 +9,9 @@ class SlidingPiece < Piece
       (1..7).each do |multiplier|
         new_position = [x + (multiplier * dx), y + (multiplier * dy)]
         if new_position[0].between?(0,7) && new_position[1].between?(0,7)
-          unless piece_in_way?(self.position, new_position) # || move_into_check?(new_position)
+          unless piece_in_way?(self.position, new_position)
             valid_moves << new_position
-            # definitely avoid your own color's pieces
-            # don't move past more than one opponent player
+
           end
         end
       end
@@ -43,6 +37,15 @@ class Rook < SlidingPiece
   def possible_moves
     super(@move_units)
   end
+
+  def render
+    if @color == :w
+      "\u2656"
+    else
+      "\u265c"
+    end
+  end
+
 end
 
 class Queen < SlidingPiece
@@ -65,6 +68,13 @@ class Queen < SlidingPiece
     super(@move_units)
   end
 
+  def render
+    if @color == :w
+      "\u2655"
+    else
+      "\u265b"
+    end
+  end
 
 end
 
@@ -84,4 +94,11 @@ class Bishop < SlidingPiece
     super(@move_units)
   end
 
+  def render
+    if @color == :w
+      "\u2657"
+    else
+      "\u265d"
+    end
+  end
 end

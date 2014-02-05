@@ -1,11 +1,7 @@
-# require_relative 'piece'
-
-
-# private ???
-
+# encoding: utf-8
+# private ??? protected
 class SteppingPiece < Piece
 #Initialize a move possibilities  Kings, Knights
-
   def possible_moves(move_units)
     valid_moves = []
     x, y = self.position
@@ -13,11 +9,9 @@ class SteppingPiece < Piece
     move_units.each do |(dx, dy)|
       new_position = [x + dx, y + dy]
       if new_position[0].between?(0,7) && new_position[1].between?(0,7)
-        # not valid if new position is already occupied (ask self.board)
-        unless piece_in_way?(self.position, new_position) # || move_into_check?(new_position)
+        unless piece_in_way?(self.position, new_position)
           valid_moves << new_position
         end
-        # valid_moves << new_position
       end
     end
 
@@ -46,6 +40,14 @@ class King < SteppingPiece
     super(@move_units)
   end
 
+  def render
+    if @color == :w
+      "\u2654"
+    else
+      "\u265a"
+    end
+  end
+
 end
 
 
@@ -66,8 +68,36 @@ class Knight < SteppingPiece
   end
 
   def possible_moves
-    super(@move_units)
+    valid_moves = []
+    x, y = self.position
+
+    @move_units.each do |(dx, dy)|
+      new_position = [x + dx, y + dy]
+      if new_position[0].between?(0,7) && new_position[1].between?(0,7)
+        unless piece_in_way?(self.position, new_position)
+          valid_moves << new_position
+        end
+      end
+    end
+
+    valid_moves
   end
 
+  def piece_in_way?(start_position, end_position)
+    piece = @board.board[end_position[0]][end_position[1]]
+    return false if piece.nil?
+    unless piece.color == @color
+      return false
+    end
+    true
+  end
+
+  def render
+    if @color == :w
+      "\u2658"
+    else
+      "\u265e"
+    end
+  end
 
 end

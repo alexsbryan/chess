@@ -1,14 +1,17 @@
+# encoding: utf-8
 require_relative 'piece'
 require_relative 'slidingpiece'
 require_relative 'steppingpiece'
-
+require 'colorize'
 
 class Board
   attr_accessor :board
 
-  def initialize # take an option to determine if we want to populate or not
+  def initialize(testing = false)
     @board = create_empty_board
-    # populate_board
+    unless testing
+      populate_board
+    end
   end
 
   def create_empty_board
@@ -16,64 +19,51 @@ class Board
   end
 
   def populate_board
-    # populate board with pieces (3 ways - pawn rows x 2, royals (white), royals (black))
-    # pawns
     (0..7).each do |x|
       @board[x][1] = Pawn.new(:w, [x, 1], self)
       @board[x][6] = Pawn.new(:b, [x, 6], self)
     end
 
-    # everyone but king and queen
     (0..7).each do |x|
       if x == 0 || x == 7
-        # place a rook at row 0, row 7
         @board[x][0] = Rook.new(:w, [x, 0], self)
         @board[x][7] = Rook.new(:b, [x, 7], self)
       elsif x == 1 || x ==6
-        # place a knight
         @board[x][0] = Knight.new(:w, [x, 0], self)
         @board[x][7] = Knight.new(:b, [x, 7], self)
       elsif x == 2 || x == 5
-        #place a bishop
         @board[x][0] = Bishop.new(:w, [x, 0], self)
         @board[x][7] = Bishop.new(:b, [x, 7], self)
       elsif x == 3
-        #King
         @board[x][0] = King.new(:w, [x, 0], self)
         @board[x][7] = King.new(:b, [x, 7], self)
       elsif x == 4
-        #Queen
         @board[x][0] = Queen.new(:w, [x, 0], self)
         @board[x][7] = Queen.new(:b, [x, 7], self)
       end
-
     end
-
-  end
-
-  def piece_taken
-    #sets taken pieces to nil
   end
 
   def print_board
-    # simple (really stinks)
+    # simple (only stinks a little!)
+    color = :cyan
+    piece_color_map = {:b => :black, :w => :magenta}
+
     @board.each do |row|
       row.each do |piece|
-        puts piece.class
+        if piece.nil?
+          print "| _ ".colorize(:background => color) # "\u2581"
+        else
+          print "| #{(piece.render + " ").colorize(:color => piece_color_map[piece.color], :background => color)}".colorize(:background => color)
+        end
+        color = color == :cyan ? :white : :cyan
       end
       puts
+      color = color == :cyan ? :white : :cyan
     end
-
   end
 
-  # incorporate other players into piece class # move
-  #
-  #  # def []()
-  #   @board[row][column]
-  # end
-
   def in_check? color
-
     king_loc = find_king(color)
     opponent = color == :b ? :w : :b
 
@@ -86,11 +76,11 @@ class Board
         end
       end
     end
+
     false
   end
 
   def find_king color
-
     @board.each do |row|
       row.each do |piece|
         if piece.is_a?(King) && piece.color == color
@@ -145,7 +135,6 @@ class Board
         next if piece.nil?
         dup_piece = (piece.class).new(piece.color, piece.position, dup_board)
         dup_board.board[row_idx][col] = dup_piece
-
       end
     end
 
@@ -159,27 +148,14 @@ class Board
       row.each_with_index do |piece, col|
         next if piece.nil? || piece.color != color
         legal_moves = piece.possible_moves
-
         good_moves += piece.valid_moves(legal_moves)
       end
     end
 
-    if good_moves.empty?
-      return true
-    else
-      false
-    end
-
+    return true if good_moves.empty?
+    false
   end
 end
-
-
-
-# PENDING: you cannot eat other pieces
-#
-
-
-
 
 
 class Player
@@ -201,16 +177,18 @@ class Game
 
 end
 
-b = Board.new
+b = Board.new(true)
 queen = Queen.new(:w, [0,0], b)
-king = King.new(:b, [7,7], b)
+king = Knight.new(:b, [7,7], b)
 bishop1 = Bishop.new(:b, [6,7], b)
 bishop2 = Bishop.new(:b, [7,6], b)
+bishop3 = Bishop.new(:b, [6,6], b)
 
 b.board[0][0] = queen
 b.board[7][7] = king
 b.board[6][7] = bishop1
-# b.board[7][6] = bishop2
+b.board[6][6] = bishop3
+b.board[7][6] = bishop2
 
 # dup = b.dup
 
@@ -223,12 +201,13 @@ b.board[6][7] = bishop1
 # puts king.move_into_check?([7,6]) == false
 # puts king.move_into_check?([7,7]) == true
 #
-# b.move([6,5], [7,6])
+p king.valid_moves(king.possible_moves)
+
+b.move([7,7], [6,5])
 
 b.print_board
 
 # p bishop2.valid_moves(bishop2.possible_moves)
-p king.valid_moves(king.possible_moves)
 p b.checkmate?(:b)
 
 #p "I moved into check #{king.move_into_check?([7,7])}"
