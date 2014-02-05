@@ -23,15 +23,11 @@ class Piece
 
   #passes in [x,y] style start position and end position
   def piece_in_way?(start_position, end_position)
-    puts "HERE I AM"
     if start_position[1] == end_position[1]
-      puts "horizontal"
       horizontal_in_way?(start_position,end_position)
     elsif start_position[0] == end_position[0]
-      puts "vertical"
       vertical_in_way?(start_position,end_position)
     else
-      puts "diagonal"
       diagonal_in_way?(start_position, end_position)
     end
   end
@@ -47,6 +43,8 @@ class Piece
     #   end
     # end
     # true
+    opponent_color = self.color == :b ? :w : :b
+
     x_vector = end_position[0] - start_position[0]
 
     abs_x_vector = x_vector.abs
@@ -59,7 +57,9 @@ class Piece
       y = cell_to_check[1] + unit_vector[1]
       cell_to_check = [x, y]
       unless @board.board[x][y].nil?
-        return true
+        unless (cell_to_check == end_position && @board.board[x][y].color == opponent_color)
+          return true
+        end
       end
     end
     false
@@ -100,6 +100,9 @@ class Piece
     # end
     #
     # true
+
+    opponent_color = self.color == :b ? :w : :b
+
     y_vector = end_position[1] - start_position[1]
 
     abs_y_vector = y_vector.abs
@@ -112,7 +115,9 @@ class Piece
       y = cell_to_check[1] + unit_vector[1]
       cell_to_check = [x, y]
       unless @board.board[x][y].nil?
-        return true
+        unless (cell_to_check == end_position && @board.board[x][y].color == opponent_color)
+          return true
+        end
       end
     end
     false
@@ -120,6 +125,9 @@ class Piece
   end
 
   def diagonal_in_way?(start_position, end_position)
+
+    opponent_color = self.color == :b ? :w : :b
+
     x_vector = end_position[0] - start_position[0]
     y_vector = end_position[1] - start_position[1]
 
@@ -133,7 +141,9 @@ class Piece
       y = cell_to_check[1] + unit_vector[1]
       cell_to_check = [x, y]
       unless @board.board[x][y].nil?
-        return true
+        unless (cell_to_check == end_position && @board.board[x][y].color == opponent_color)
+          return true
+        end
       end
     end
     false

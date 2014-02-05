@@ -77,9 +77,14 @@ class Board
     king_loc = find_king(color)
     opponent = color == :b ? :w : :b
 
+    puts opponent
+    p king_loc
+
     @board.each do |row|
       row.each do |piece|
+        next if piece.nil?
         if piece.color == opponent
+          p piece.possible_moves # runs into king and stops looking
           return true if piece.possible_moves.include?(king_loc)
         end
       end
@@ -111,8 +116,8 @@ class Board
     if piece_to_move.possible_moves.include?(end_pos)
       @board[x][y] = nil
       dest_x, dest_y = end_pos
-      @board[dest_x, dest_y] = piece_to_move
-      piece_to_move.location = end_pos
+      @board[dest_x][dest_y] = piece_to_move
+      piece_to_move.position = end_pos
     else
       #throw eception
     end
@@ -150,22 +155,36 @@ class Game
 end
 
 b = Board.new
-queen = Queen.new(:w, [0,1], b)
-pawn = Pawn.new(:w, [4,3], b)
-pawn2 = Pawn.new(:w, [0,0], b) # up
-pawn3 = Pawn.new(:w, [0,7], b) # down
-pawn4 = Pawn.new(:w, [3,1], b) #right
-pawn5 = Pawn.new(:w, [1,2], b) # diagonal
+queen = Queen.new(:w, [0,0], b)
+king = King.new(:b, [7,7], b)
 
-b.board[0][1] = queen
-b.board[4][3] = pawn
-b.board[0][0] = pawn2
-b.board[0][7] = pawn3
-b.board[3][1] = pawn4
-b.board[1][2] = pawn5
+b.board[0][0] = queen
+b.board[7][7] = king
+
+puts b.in_check?(:b)
 
 b.print_board
+# b.move([0,0], [7,7]) # queen moves on top of king
+b.move([7,7], [7,6])
+b.print_board
 
-p queen.possible_moves.sort
+
+# queen = Queen.new(:w, [0,1], b)
+# pawn = Pawn.new(:w, [4,3], b)
+# pawn2 = Pawn.new(:w, [0,0], b) # up
+# pawn3 = Pawn.new(:w, [0,7], b) # down
+# pawn4 = Pawn.new(:w, [3,1], b) #right
+# pawn5 = Pawn.new(:w, [1,2], b) # diagonal
+#
+# b.board[0][1] = queen
+# b.board[4][3] = pawn
+# b.board[0][0] = pawn2
+# b.board[0][7] = pawn3
+# b.board[3][1] = pawn4
+# b.board[1][2] = pawn5
+#
+# b.print_board
+#
+# p queen.possible_moves.sort
 
 # p rook.board.board[4][4]
