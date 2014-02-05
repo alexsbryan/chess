@@ -68,11 +68,67 @@ class Board
 
   # incorporate other players into piece class # move
   #
-#  # def []()
+  #  # def []()
   #   @board[row][column]
   # end
 
+  def in_check? color
+
+    king_loc = find_king(color)
+    opponent = color == :b ? :w : :b
+
+    @board.each do |row|
+      row.each do |piece|
+        if piece.color == opponent
+          return true if piece.possible_moves.include?(king_loc)
+        end
+      end
+    end
+    false
+  end
+
+  def find_king color
+
+    @board.each do |row|
+      row.each do |piece|
+        if piece.is_a?(King) && piece.color == color
+          return piece.position
+        end
+      end
+    end
+    nil
+  end
+
+  def move(start_pos, end_pos)
+    # check if there's an opponent at the end
+    # make sure that piece has end as a possible move
+    x, y = start_pos
+    piece_to_move = @board[x][y]
+
+    # throw an exception/error if piece_to_move.nil?
+    # or if not a Piece
+
+    if piece_to_move.possible_moves.include?(end_pos)
+      @board[x][y] = nil
+      dest_x, dest_y = end_pos
+      @board[dest_x, dest_y] = piece_to_move
+      piece_to_move.location = end_pos
+    else
+      #throw eception
+    end
+  end
+
+
 end
+
+
+
+# PENDING: you cannot eat other pieces
+#
+
+
+
+
 
 class Player
 

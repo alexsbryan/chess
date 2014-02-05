@@ -3,7 +3,7 @@
 class Piece
   ##Process a move from game, return errors if move not possible, otherwise moves to positions(or some other class does moving, it just confirms validity and changes it's current position)
 
-  attr_accessor :position, :board
+  attr_accessor :position, :board, :color
 
   def initialize color, position, board = nil
     @color = color
