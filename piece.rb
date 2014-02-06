@@ -115,8 +115,8 @@ end
 
 
 class Pawn < Piece
+  attr_accessor :first_move
 
-  #TODO: depending on game state and whether it's claiming a piece it's moves are different
   def initialize(color, pos, board=nil)
     super(color,pos,board)
     @move_units = [
@@ -124,7 +124,7 @@ class Pawn < Piece
       [-1,1],
       [0,1]
     ]
-
+    @first_move = true
   end
 
   def possible_moves
@@ -132,14 +132,31 @@ class Pawn < Piece
     direction = self.direction
     x, y = self.position
 
+    @move_units << [0,2] if @first_move
+
     @move_units.each do |(dx, dy)|
       new_position = [x + (direction * dx), y + (direction * dy)]
       if new_position[0].between?(0,7) && new_position[1].between?(0,7)
-        valid_moves << new_position if piece_in_way?(self.position, new_position)
+        valid_moves << new_position unless piece_in_way?(self.position, new_position)
       end
     end
 
+    @move_units.pop if @first_move
+
     valid_moves
+  end
+
+  def piece_in_way?(start_pos, end_pos)
+    start_x, start_y = start_pos
+    end_x, end_y = end_pos
+
+    if end_y == start_y || start_x == end_x
+      return !@board.board[end_x][end_y].nil?
+    else # moving diagonally
+      dest_contents = @board.board[end_x][end_y]
+      return true if dest_contents.nil?
+      return false if dest_contents.color != self.color
+    end
   end
 
   def direction
