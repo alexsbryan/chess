@@ -53,8 +53,9 @@ class Board
     # HOW DO WE ROTATE THIS 90 DEGREES???
     # we have assumed x,y coordinates; this prints as row-column (i.e. y-x)
 
-    @board.each do |row|
-      row.each do |piece|
+    @board.each_with_index do |row, row_idx|
+      print (row_idx + 1).to_s + " "
+      row.each_with_index do |piece, col_idx|
         # if these coordinates match the cursor coordinates, render cursour insteadg
         if piece.nil?
           print "| _ ".colorize(:background => color) # "\u2581"
@@ -64,8 +65,10 @@ class Board
         color = color == :cyan ? :white : :cyan
       end
       puts
+
       color = color == :cyan ? :white : :cyan
     end
+    puts "  | a | b | c | d | e | f | g | h "
   end
 
   def in_check? color
@@ -111,12 +114,14 @@ class Board
     if good_moves.nil?
       raise MoveError.new "In check if there are no other errors......"
     end
-
+    p good_moves
+    p end_pos
     if good_moves.include?(end_pos)
       move!(start_pos, end_pos)
     else
       return false
     end
+    true
   end
 
   def move!(start_pos, end_pos)
@@ -200,8 +205,22 @@ class HumanPlayer < Player
   end
 
   def parse(user_input)
+
+    letter_hash = {
+      "a" => 0,
+      "b" => 1,
+      "c" => 2,
+      "d" => 3,
+      "e" => 4,
+      "f" => 5,
+      "g" => 6,
+      "h" => 7
+    }
+
     coordinates = user_input.split(',')
-    [coordinates[0].to_i, coordinates[1].to_i]
+    # puts (coordinates[0].to_i-1)
+    # puts letter_hash[coordinates[1]]
+    [(coordinates[0].to_i-1), letter_hash[coordinates[1]]]
   end
 end
 
