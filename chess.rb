@@ -187,19 +187,24 @@ class HumanPlayer < Player
   end
 
   def play_turn
-    puts "It is #{@color}'s turn."
-    puts "From where are you moving?"
-    start_pos = parse(gets.chomp)
-    play_turn if @board.board[start_pos[0]][start_pos[1]].nil?
-    if @board.board[start_pos[0]][start_pos[1]].color == @color
-      puts "To where are you moving?"
-      end_pos = gets.chomp
-      #raise errors or do something (parse)
-      end_pos = parse(end_pos)
-      if @board.move(start_pos, end_pos) == false
+    begin
+      puts "It is #{@color}'s turn."
+      puts "From where are you moving?"
+      start_pos = parse(gets.chomp)
+      play_turn if @board.board[start_pos[0]][start_pos[1]].nil?
+      if @board.board[start_pos[0]][start_pos[1]].color == @color
+        puts "To where are you moving?"
+        end_pos = gets.chomp
+        #raise errors or do something (parse)
+        end_pos = parse(end_pos)
+        if @board.move(start_pos, end_pos) == false
+          play_turn
+        end
+      else
         play_turn
       end
-    else
+    rescue TypeError => e
+      puts "Invalid input."
       play_turn
     end
   end
@@ -220,6 +225,7 @@ class HumanPlayer < Player
     coordinates = user_input.split(',')
     # puts (coordinates[0].to_i-1)
     # puts letter_hash[coordinates[1]]
+
     [(coordinates[0].to_i-1), letter_hash[coordinates[1]]]
   end
 end
